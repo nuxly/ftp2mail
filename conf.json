@@ -1,0 +1,30 @@
+{
+    "url": "",
+    "ftp": {
+        "host": "",
+        "port": "",
+        "login": "",
+        "password": ""
+    },
+    "mail": {
+        "subject": "",
+        "from": "",
+        "to": "",
+        "cc": "",
+        "cci": "",
+        "smtp": {
+            "host": "",
+            "port": "",
+            "username": "",
+            "password": ""
+        }
+    },
+    "files": {
+        "path": "data/",
+        "timeout": 10
+    },
+    "log": {
+        "path": "log/",
+        "filename": "main.log"
+    }
+}
