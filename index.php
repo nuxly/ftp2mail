@@ -41,19 +41,37 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
  
 require __DIR__ . '/vendor/autoload.php';
 
-
-if (!isset($_GET['f'])) {
-
+if (PHP_SAPI === 'cli') {
     $cli = new nuxly\ftp2mail\FTP2mail();
     $cli->run();
-    die("Done.");
-} elseif (!file_exists($_GET['f'])) {
-    die("This file does not exist.");
+    exit(0);
+} elseif (isset($_GET['f'])) {
+
+    $history = new nuxly\ftp2mail\DataHistory('data.json');
+
+    if ($item = $history->get($_GET['f'])) {
+
+        $file = stripslashes($item['file']);
+        /* TODO: add log item */
+        header('Content-Type: application/octet-stream');
+        header("Content-Length: " . filesize($file));
+        header("Content-Transfer-Encoding: Binary");
+        header("Content-disposition: attachment; filename=\"{$item['name']}\""); 
+
+        
+        $fp = fopen($file, 'rb');
+        fpassthru($fp);
+        fclose($fp);
+
+        exit(0);
+
+    } else {
+        /* TODO: add log item */
+        echo "This file does not exist.";
+        exit(1);
+    }
 } else {
-    $file = $_GET['f'];
-
-    header('Content-Type: application/octet-stream');
-    header("Content-Transfer-Encoding: Binary"); 
-    header("Content-disposition: attachment; filename=\"$file\""); 
-
+    /* TODO: add log item */
+    echo "<b>Ftp2mail</b> is ready !";
+    exit(0);
 }

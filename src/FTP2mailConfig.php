@@ -43,6 +43,9 @@ use Noodlehaus\Parser\Json;
 
 class FTP2mailConfig extends Config
 {
+    /**
+     * TODO: write code
+     */
     public function check() {
         
     }

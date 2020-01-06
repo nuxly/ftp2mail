@@ -1,0 +1,6 @@
+/vendor
+/data/*
+/log/*
+composer.phar
+config.json
+data.json

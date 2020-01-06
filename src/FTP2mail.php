@@ -41,6 +41,7 @@ use splitbrain\phpcli\CLI;
 use splitbrain\phpcli\Options;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use nuxly\ftp2mail\DataHistory;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -67,13 +68,15 @@ class FTP2mail extends CLI
         // Parsing config file
         $conf = new FTP2mailConfig($configFile);
 
+        $history = new DataHistory('data.json');
+
         $files_path = $conf->get("files.path") . (substr($conf->get("files.path"), -1) !== '/'?'/':null);
         $log_path   = $conf->get("log.path") . (substr($conf->get("log.path"), -1) !== '/'?'/':null);
 
         $logger = new Logger('FTP2mail');
         $logger->pushHandler(new StreamHandler(__DIR__ . '/../' . $log_path . $conf->get("log.filename") , Logger::DEBUG));
         
-        $logger->info("FTP2mail started using '$configFile'");
+        $logger->info("FTP2mail started with '$configFile'");
         
         // Connecting to the FTP server
         $ftp = new \FtpClient\FtpClient();
@@ -99,12 +102,18 @@ class FTP2mail extends CLI
                 // Downloading file from FTP server
                 $logger->info("Downloading file '$renamed'..");
                 $ftp->get($files_path . $renamed, $value["name"], FTP_BINARY);
+                
+                $file_date = date('Y-m-d');
+                $file_time = date('H:i:s');
+                $file_id = $history->id($renamed, $file_time);
+                $history->add($file_id, $file_date, $file_time, $renamed, $files_path . $renamed);
+                $history->save();
 
-                array_push($downloadedFiles, $files_path . $renamed);
+                array_push($downloadedFiles, $file_id);
                 
                 // Deleting file from FTP server
                 $logger->info("Deleting file '" . $value["name"] . "' from FTP server..");
-                //$ftp->remove($value["name"]);
+                $ftp->remove($value["name"]);
             }
         }
 
@@ -134,11 +143,12 @@ class FTP2mail extends CLI
                 // Content
                 $mail->isHTML(true);                                  // Set email format to HTML
                 $mail->Subject = $conf->get("mail.subject");
-                $message    = 'Hi,<br><br>The files below are downloadable for ' . $conf->get("files.timeout") . ' days :<br><br><table><thead style="background: silver"><tr><th>#</th><th>Filename</th></tr></thead><tbody>';
+                $message    = 'Hi,<br><br>The files below are available for ' . $conf->get("files.timeout") . ' days :<br><br><table><thead style="background: silver"><tr><th>#</th><th>Filename</th></tr></thead><tbody>';
                 $i=0;
-                foreach ($downloadedFiles as $key => $value) {
+                foreach ($downloadedFiles as $key => $id) {
                     $i++;
-                    $message .= "<tr><td style='text-align: right'>$i</td><td><a href=\"" . $conf->get("url") ."/?f=$value\" >$value</a><td></tr>";
+                    $file = $history->get($id);
+                    $message .= "<tr><td style='text-align: right'>$i</td><td><a href=\"" . $conf->get("url") ."/?f=$id\" >{$file['name']}</a><td></tr>";
                 }
                 $message .="</tbody></table><br><br>Cheers,<br><br>FTP2mail.";
                 $mail->Body = $message;
