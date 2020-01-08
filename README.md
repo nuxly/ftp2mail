@@ -9,6 +9,8 @@
 OS X & Linux:
 
 ```sh
+git clone https://github.com/nuxly/ftp2mail.git
+cd ftp2mail
 make install
 ```
 
@@ -29,7 +31,7 @@ php index.php -h
 You can create a cron job with the following command :
 
 ```sh
-crontab -l | { cat; echo "* * * * * php /mnt/c/Users/Lionel/Document/workspace/ftp2mail/index.php --config config.json"; } | crontab -
+crontab -l | { cat; echo "* * * * * php /your-ftp2mail-directory/index.php --config config.json"; } | crontab -
 ```
 ## Meta
 
