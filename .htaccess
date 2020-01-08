@@ -4,8 +4,8 @@ Order Allow,Deny
 Deny from all
 </Files>
 
-# Protect conf.json
-<Files ./conf.json>
+# Protect config.json
+<Files ./config.json>
 Order Allow,Deny
 Deny from all
 </Files>
@@ -18,6 +18,12 @@ Deny from all
 
 # Protect composer.lock
 <Files ./composer.lock>
+Order Allow,Deny
+Deny from all
+</Files>
+
+# Protect Makefile
+<Files ./Makefile>
 Order Allow,Deny
 Deny from all
 </Files>
