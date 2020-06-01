@@ -5,7 +5,7 @@
     "require": {
         "php": ">=7.2",
         "monolog/monolog": "^2.0",
-        "phpmailer/phpmailer": "^6.1",
+        "phpmailer/phpmailer": "^6.1.6",
         "nicolab/php-ftp-client": "^1.5",
         "hassankhan/config": "^2.1",
         "splitbrain/php-cli": "^1.1"
